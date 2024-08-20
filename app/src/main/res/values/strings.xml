@@ -26,4 +26,6 @@
     <string name="reps_3">Reps 3</string>
     <string name="reps_4">Reps 4</string>
     <string name="reps_5">Reps 5</string>
+    <string name="pesos_kg">Pesos (kg)</string>
+    <string name="salir">Salir</string>
 </resources>

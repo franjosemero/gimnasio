@@ -14,6 +14,6 @@
         android:id="@+id/saveButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Guardar selección" />
+        android:text="@string/guardar_selecci_n" />
 
 </LinearLayout>

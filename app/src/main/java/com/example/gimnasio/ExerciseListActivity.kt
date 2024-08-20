@@ -16,6 +16,7 @@ import android.graphics.Typeface
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.StyleSpan
+import androidx.appcompat.app.AlertDialog
 
 class ExerciseListActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
@@ -38,11 +39,25 @@ class ExerciseListActivity : AppCompatActivity() {
         recyclerView.adapter = adapter
 
         findViewById<Button>(R.id.saveButton).setOnClickListener {
-            val intent = Intent()
-            intent.putExtra("selectedExercises", ArrayList(selectedExercises))
-            setResult(Activity.RESULT_OK, intent)
-            finish()
+            showDaySelectionDialog()
         }
+    }
+    private fun showDaySelectionDialog() {
+        val days = arrayOf("Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo")
+        AlertDialog.Builder(this)
+            .setTitle("Selecciona el día para guardar los ejercicios")
+            .setItems(days) { _, which ->
+                val selectedDay = days[which]
+                val intent = Intent()
+                intent.putExtra("selectedExercises", ArrayList(selectedExercises))
+                intent.putExtra("selectedDay", selectedDay)
+                setResult(Activity.RESULT_OK, intent)
+                finish()
+            }
+            .setNegativeButton("Cancelar") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
     }
 
     inner class ExerciseAdapter(

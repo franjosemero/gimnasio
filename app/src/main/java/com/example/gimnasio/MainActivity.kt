@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -17,8 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.example.gimnasio.databinding.ActivityMainBinding
 import java.util.Locale
-import android.text.InputType
-import android.widget.EditText
+//import android.text.InputType
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.ActivityResultLauncher
 
@@ -43,6 +43,7 @@ class MainActivity : AppCompatActivity() {
         setupDayButtons()
         setupAddExerciseButton()
         setupShowExercisesButton()
+        setupExitButton()
         setupExerciseListLauncher()
         loadExercises()
 
@@ -61,24 +62,27 @@ class MainActivity : AppCompatActivity() {
             if (result.resultCode == Activity.RESULT_OK) {
                 val data = result.data
                 val selectedExercises = data?.getStringArrayListExtra("selectedExercises")
-                Log.d("MainActivity", "Received selected exercises: $selectedExercises")
-                if (selectedExercises != null) {
+                val selectedDay = data?.getStringExtra("selectedDay")
+                Log.d("MainActivity", "Received selected exercises: $selectedExercises for day: $selectedDay")
+
+                if (selectedExercises != null && selectedDay != null) {
                     try {
                         selectedExercises.forEach { exerciseName ->
-                            val exercisesForCurrentDay = exercises[currentDay]
-                            if (exercisesForCurrentDay != null && !exercisesForCurrentDay.any { it.name == exerciseName }) {
-                                addExercise(exerciseName)
+                            val exercisesForSelectedDay = exercises.getOrPut(selectedDay) { mutableListOf() }
+                            if (!exercisesForSelectedDay.any { it.name == exerciseName }) {
+                                exercisesForSelectedDay.add(Exercise(exerciseName, List(5) { 0 }))
                             }
                         }
-                        Log.d("MainActivity", "Exercises added successfully")
-                        showSnackbar("Ejercicios guardados correctamente")
+                        saveExercises()
+                        Log.d("MainActivity", "Exercises added successfully for $selectedDay")
+                        showSnackbar("Ejercicios guardados correctamente para $selectedDay")
                     } catch (e: Exception) {
                         Log.e("MainActivity", "Error adding exercises", e)
                         showSnackbar("Error al guardar los ejercicios")
                     }
                 } else {
-                    Log.w("MainActivity", "No exercises were selected")
-                    showSnackbar("No se seleccionaron ejercicios")
+                    Log.w("MainActivity", "No exercises were selected or no day was chosen")
+                    showSnackbar("No se seleccionaron ejercicios o no se eligió un día")
                 }
             } else {
                 Log.w("MainActivity", "Exercise selection was cancelled")
@@ -109,6 +113,12 @@ class MainActivity : AppCompatActivity() {
     private fun setupShowExercisesButton() {
         findViewById<Button>(R.id.showExercisesButton).setOnClickListener {
             showAllExercises()
+        }
+    }
+
+    private fun setupExitButton() {
+        findViewById<Button>(R.id.exitButton).setOnClickListener {
+            showExitConfirmationDialog()
         }
     }
 
@@ -143,6 +153,7 @@ class MainActivity : AppCompatActivity() {
         setupDayButtons()
         setupAddExerciseButton()
         setupShowExercisesButton()
+        setupExitButton()
     }
 
     private fun showExercisesList() {
@@ -182,7 +193,7 @@ class MainActivity : AppCompatActivity() {
             .setMessage("¿Estás seguro de que quieres borrar todos los ejercicios para $day?")
             .setPositiveButton("Sí") { _, _ ->
                 exercises[day]?.clear()
-                adapter.notifyDataSetChanged()
+                adapter.notifyDataSetChanged ()
                 saveExercises()
                 showSnackbar("Ejercicios borrados para $day")
             }
@@ -209,7 +220,7 @@ class MainActivity : AppCompatActivity() {
                 try {
                     val parts = it.split(",")
                     val name = parts[0]
-                    val weights = parts.subList(1, 6).map { it.toIntOrNull() ?: 0 }
+                    val weights = parts.subList(1, parts.size).map { it.toIntOrNull() ?: 0 }
                     Exercise(name, weights)
                 } catch (e: Exception) {
                     Log.e("MainActivity", "Error parsing exercise for $day: $it", e)
@@ -229,12 +240,23 @@ class MainActivity : AppCompatActivity() {
         Snackbar.make(findViewById(android.R.id.content), message, Snackbar.LENGTH_SHORT).show()
     }
 
+    private fun showExitConfirmationDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Confirmar salida")
+            .setMessage("¿Estás seguro de que quieres salir de la aplicación?")
+            .setPositiveButton("Sí") { _, _ ->
+                finishAffinity() // Cierra todas las actividades de la aplicación
+            }
+            .setNegativeButton("No", null)
+            .show()
+    }
+
     data class Exercise(val name: String, var weights: List<Int>)
 
     inner class ExerciseAdapter(private val exercises: MutableList<Exercise>) : RecyclerView.Adapter<ExerciseAdapter.ViewHolder>() {
         inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             val nameTextView: TextView = view.findViewById(R.id.exerciseName)
-            val weightInputs: List<TextView> = listOf(
+            val weightInputs: List<EditText> = listOf(
                 view.findViewById(R.id.weightInput1),
                 view.findViewById(R.id.weightInput2),
                 view.findViewById(R.id.weightInput3),
@@ -252,34 +274,26 @@ class MainActivity : AppCompatActivity() {
             val exercise = exercises[position]
             holder.nameTextView.text = exercise.name
 
-            holder.weightInputs.forEachIndexed { index, textView ->
-                textView.text = exercise.weights[index].toString()
-                textView.setOnClickListener {
-                    showWeightInputDialog(exercise, index, textView)
+            holder.weightInputs.forEachIndexed { index, editText ->
+                editText.setText(exercise.weights.getOrNull(index)?.toString() ?: "")
+                editText.setOnFocusChangeListener { _, hasFocus ->
+                    if (!hasFocus) {
+                        val newWeight = editText.text.toString().toIntOrNull() ?: 0
+                        if (exercise.weights.getOrNull(index) != newWeight) {
+                            val newWeights = exercise.weights.toMutableList()
+                            if (index < newWeights.size) {
+                                newWeights[index] = newWeight
+                            } else {
+                                newWeights.add(newWeight)
+                            }
+                            exercise.weights = newWeights
+                            saveExercises()
+                        }
+                    }
                 }
             }
         }
 
         override fun getItemCount() = exercises.size
-
-        private fun showWeightInputDialog(exercise: Exercise, index: Int, textView: TextView) {
-            val input = EditText(this@MainActivity)
-            input.inputType = InputType.TYPE_CLASS_NUMBER
-            input.setText(exercise.weights[index].toString())
-
-            AlertDialog.Builder(this@MainActivity)
-                .setTitle("Ingrese el peso")
-                .setView(input)
-                .setPositiveButton("OK") { _, _ ->
-                    val newWeight = input.text.toString().toIntOrNull() ?: 0
-                    exercise.weights = exercise.weights.toMutableList().apply {
-                        this[index] = newWeight
-                    }
-                    textView.text = newWeight.toString()
-                    saveExercises()
-                }
-                .setNegativeButton("Cancelar", null)
-                .show()
-        }
     }
 }
