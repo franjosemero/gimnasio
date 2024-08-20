@@ -5,10 +5,15 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <EditText
-        android:id="@+id/exerciseNameInput"
+    <TextView
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:hint="@string/nombre_del_ejercicio" />
+        android:layout_height="wrap_content"
+        android:text="Selecciona un ejercicio:"
+        android:layout_marginBottom="8dp"/>
+
+    <Spinner
+        android:id="@+id/exerciseSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
 </LinearLayout>

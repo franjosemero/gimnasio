@@ -24,7 +24,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:hint="@string/peso_1"
-            android:inputType="numberDecimal"
+            android:inputType="number"
+            android:minHeight="48dp"
             android:layout_marginEnd="4dp"/>
 
         <EditText
@@ -33,7 +34,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:hint="@string/peso_2"
-            android:inputType="numberDecimal"
+            android:inputType="number"
+            android:minHeight="48dp"
             android:layout_marginStart="4dp"
             android:layout_marginEnd="4dp"/>
 
@@ -43,7 +45,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:hint="@string/peso_3"
-            android:inputType="numberDecimal"
+            android:inputType="number"
+            android:minHeight="48dp"
             android:layout_marginStart="4dp"
             android:layout_marginEnd="4dp"/>
 
@@ -53,7 +56,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:hint="@string/peso_4"
-            android:inputType="numberDecimal"
+            android:inputType="number"
+            android:minHeight="48dp"
             android:layout_marginStart="4dp"
             android:layout_marginEnd="4dp"/>
 
@@ -63,7 +67,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:hint="@string/peso_5"
-            android:inputType="numberDecimal"
+            android:inputType="number"
+            android:minHeight="48dp"
             android:layout_marginStart="4dp"/>
     </LinearLayout>
 </LinearLayout>

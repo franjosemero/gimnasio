@@ -16,6 +16,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.example.gimnasio.databinding.ActivityMainBinding
 import java.util.Locale
+import android.text.InputType
+import android.widget.ArrayAdapter
+import android.widget.Spinner
 
 class MainActivity : AppCompatActivity() {
 
@@ -36,6 +39,7 @@ class MainActivity : AppCompatActivity() {
         exercises = mutableMapOf()
         setupDayButtons()
         setupAddExerciseButton()
+        setupShowExercisesButton() // Nuevo método
         loadExercises()
 
         if (exercises.all { it.value.isEmpty() }) {
@@ -46,6 +50,19 @@ class MainActivity : AppCompatActivity() {
         exercises.forEach { (day, exerciseList) ->
             Log.d("MainActivity", "Day: $day, Exercises: ${exerciseList.size}")
         }
+    }
+    private fun setupShowExercisesButton() {
+        findViewById<Button>(R.id.showExercisesButton).setOnClickListener {
+            showExercisesList()
+        }
+    }
+    private fun showExercisesList() {
+        val exerciseItems = GymExercises.exercises.map { "${it.name}: ${it.description}" }
+        AlertDialog.Builder(this)
+            .setTitle("Lista de Ejercicios")
+            .setItems(exerciseItems.toTypedArray(), null)
+            .setPositiveButton("Cerrar", null)
+            .show()
     }
 
     private fun setupDayButtons() {
@@ -97,22 +114,25 @@ class MainActivity : AppCompatActivity() {
 
     private fun showAddExerciseDialog() {
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_add_exercise, null)
+        val exerciseSpinner = dialogView.findViewById<Spinner>(R.id.exerciseSpinner)
+
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, GymExercises.exercises.map { it.name })
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        exerciseSpinner.adapter = adapter
+
         AlertDialog.Builder(this)
             .setTitle("Añadir ejercicio")
             .setView(dialogView)
             .setPositiveButton("Añadir") { _, _ ->
-                val exerciseName = dialogView.findViewById<EditText>(R.id.exerciseNameInput).text.toString()
-                if (exerciseName.isNotEmpty()) {
-                    addExercise(exerciseName)
-                }
+                val selectedExercise = GymExercises.exercises[exerciseSpinner.selectedItemPosition]
+                addExercise(selectedExercise.name)
             }
             .setNegativeButton("Cancelar", null)
             .show()
     }
-
     private fun addExercise(name: String) {
         DAYS.forEach { day ->
-            exercises.getOrPut(day) { mutableListOf() }.add(Exercise(name, List(5) { 0f }))
+            exercises.getOrPut(day) { mutableListOf() }.add(Exercise(name, List(5) { 0 }))
         }
         saveExercises()
         Log.d("MainActivity", "Exercise added: $name")
@@ -141,7 +161,7 @@ class MainActivity : AppCompatActivity() {
                 try {
                     val parts = it.split(",")
                     val name = parts[0]
-                    val weights = parts.subList(1, 6).map { it.toFloatOrNull() ?: 0f }
+                    val weights = parts.subList(1, 6).map { it.toIntOrNull() ?: 0 }
                     Exercise(name, weights)
                 } catch (e: Exception) {
                     Log.e("MainActivity", "Error parsing exercise for $day: $it", e)
@@ -157,7 +177,7 @@ class MainActivity : AppCompatActivity() {
         Snackbar.make(findViewById(android.R.id.content), "Resultados enviados", Snackbar.LENGTH_SHORT).show()
     }
 
-    data class Exercise(val name: String, var weights: List<Float>)
+    data class Exercise(val name: String, var weights: List<Int>)
 
     inner class ExerciseAdapter(private val exercises: MutableList<Exercise>) : RecyclerView.Adapter<ExerciseAdapter.ViewHolder>() {
         inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -182,9 +202,10 @@ class MainActivity : AppCompatActivity() {
 
             holder.weightInputs.forEachIndexed { index, editText ->
                 editText.setText(exercise.weights[index].toString())
+                editText.inputType = InputType.TYPE_CLASS_NUMBER
                 editText.setOnFocusChangeListener { _, hasFocus ->
                     if (!hasFocus) {
-                        val newWeight = editText.text.toString().toFloatOrNull() ?: 0f
+                        val newWeight = editText.text.toString().toIntOrNull() ?: 0
                         if (exercise.weights[index] != newWeight) {
                             exercise.weights = exercise.weights.toMutableList().apply {
                                 this[index] = newWeight

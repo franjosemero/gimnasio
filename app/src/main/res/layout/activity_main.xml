@@ -55,8 +55,14 @@
             android:layout_height="wrap_content"
             android:text=
                 "@string/domingo" />
+        <Button
+            android:id="@+id/showExercisesButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Mostrar Lista de Ejercicios" />
 
     </LinearLayout>
+
 
     <Button
         android:id="@+id/addExerciseButton"
