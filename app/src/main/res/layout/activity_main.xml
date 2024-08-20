@@ -59,7 +59,7 @@
             android:id="@+id/showExercisesButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Mostrar Lista de Ejercicios" />
+            android:text="@string/mostrar_lista_de_ejercicios" />
 
     </LinearLayout>
 

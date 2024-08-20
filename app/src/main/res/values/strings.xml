@@ -19,5 +19,11 @@
     <string name="peso_3">Peso 3</string>
     <string name="peso_4">Peso 4</string>
     <string name="peso_5">Peso 5</string>
-
+    <string name="mostrar_lista_de_ejercicios">Mostrar Lista de Ejercicios</string>
+    <string name="guardar_selecci_n">Guardar selección</string>
+    <string name="reps_1">Reps 1</string>
+    <string name="reps_2">Reps 2</string>
+    <string name="reps_3">Reps 3</string>
+    <string name="reps_4">Reps 4</string>
+    <string name="reps_5">Reps 5</string>
 </resources>

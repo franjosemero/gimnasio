@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("kotlin-android")
 }
 
 android {
@@ -36,6 +37,7 @@ android {
     buildFeatures {
         viewBinding = true
     }
+
 }
 
 dependencies {
@@ -46,4 +48,9 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    implementation(libs.androidx.core.ktx.v170)
+    implementation(libs.androidx.appcompat.v141)
+    implementation(libs.androidx.activity.ktx)
+    implementation(libs.material.v150)
+    implementation(libs.androidx.constraintlayout.v213)
 }
