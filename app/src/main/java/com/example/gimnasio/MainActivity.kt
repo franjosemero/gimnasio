@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -46,16 +47,20 @@ class MainActivity : AppCompatActivity() {
         setupExitButton()
         setupExerciseListLauncher()
         loadExercises()
+        setupAddNewExerciseButton()
+
 
         if (exercises.all { it.value.isEmpty() }) {
             Log.d("MainActivity", "Adding test exercise")
-            addExercise("Ejercicio de prueba")
+
         }
 
         exercises.forEach { (day, exerciseList) ->
             Log.d("MainActivity", "Day: $day, Exercises: ${exerciseList.size}")
         }
     }
+    //Configura un ActivityResultLauncher para manejar el resultado de seleccionar ejercicios.
+    //Cuando se reciben ejercicios seleccionados, los añade al día correspondiente y guarda los cambios.
 
     private fun setupExerciseListLauncher() {
         exerciseListLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -69,8 +74,11 @@ class MainActivity : AppCompatActivity() {
                     try {
                         selectedExercises.forEach { exerciseName ->
                             val exercisesForSelectedDay = exercises.getOrPut(selectedDay) { mutableListOf() }
-                            if (!exercisesForSelectedDay.any { it.name == exerciseName }) {
-                                exercisesForSelectedDay.add(Exercise(exerciseName, List(5) { 0 }))
+                            val exercise = GymExercises.exercises.find { it.name == exerciseName }
+                            if (exercise != null) {
+                                exercisesForSelectedDay.add(Exercise(exercise.name, exercise.description, List(5) { 0 }))
+                            } else {
+                                exercisesForSelectedDay.add(Exercise(exerciseName, "Sin descripción", List(5) { 0 }))
                             }
                         }
                         saveExercises()
@@ -91,6 +99,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    //Configura los botones para cada día de la semana.
+    //Cuando se pulsa un botón, muestra los ejercicios para ese día.
     private fun setupDayButtons() {
         DAYS.forEach { day ->
             val buttonId = resources.getIdentifier("${day.lowercase(Locale.getDefault()).replace("á", "a")}Button", "id", packageName)
@@ -104,23 +114,33 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    //Configura el botón para añadir ejercicios.
+    //Al pulsarlo, muestra la lista de ejercicios disponibles.
     private fun setupAddExerciseButton() {
         findViewById<Button>(R.id.addExerciseButton).setOnClickListener {
             showExercisesList()
         }
     }
 
+    //Configura el botón para mostrar todos los ejercicios.
+    //Al pulsarlo, muestra una lista de todos los ejercicios disponibles.
     private fun setupShowExercisesButton() {
         findViewById<Button>(R.id.showExercisesButton).setOnClickListener {
             showAllExercises()
         }
     }
 
+    //Configura el botón para salir de la aplicación.
+    //Al pulsarlo, muestra una confirmación para salir de la aplicación.
     private fun setupExitButton() {
         findViewById<Button>(R.id.exitButton).setOnClickListener {
             showExitConfirmationDialog()
         }
     }
+
+    //Muestra los ejercicios para un día específico.
+    //Configura un RecyclerView con los ejercicios del día.
+    //Configura botones para enviar resultados, volver atrás y borrar ejercicios.
 
     private fun showDayExercises(day: String) {
         currentDay = day
@@ -148,6 +168,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    //Muestra la pantalla principal con los botones para añadir ejercicios, mostrar todos los ejercicios y salir.
     private fun showMainScreen() {
         setContentView(binding.root)
         setupDayButtons()
@@ -156,11 +177,13 @@ class MainActivity : AppCompatActivity() {
         setupExitButton()
     }
 
+    //Abre la pantalla de selección de ejercicios.
     private fun showExercisesList() {
         val intent = Intent(this, ExerciseListActivity::class.java)
         exerciseListLauncher.launch(intent)
     }
 
+    //Muestra una lista de todos los ejercicios disponibles.
     private fun showAllExercises() {
         val exerciseItems = GymExercises.exercises.map { "${it.name}: ${it.description}" }
         AlertDialog.Builder(this)
@@ -169,23 +192,114 @@ class MainActivity : AppCompatActivity() {
             .setPositiveButton("Cerrar", null)
             .show()
     }
-
-    private fun addExercise(name: String) {
-        try {
-            DAYS.forEach { day ->
-                exercises.getOrPut(day) { mutableListOf() }.add(Exercise(name, List(5) { 0 }))
-            }
-            saveExercises()
-            Log.d("MainActivity", "Exercise added: $name")
-            if (::adapter.isInitialized && currentDay in exercises) {
-                adapter.notifyItemInserted(exercises[currentDay]?.size?.minus(1) ?: 0)
-            }
-            showSnackbar("Ejercicio añadido: $name")
-        } catch (e: Exception) {
-            Log.e("MainActivity", "Error adding exercise: $name", e)
-            showSnackbar("Error al añadir ejercicio: $name")
+    private fun setupAddNewExerciseButton() {
+        findViewById<Button>(R.id.addNewExerciseButton).setOnClickListener {
+            showAddExerciseDialog()
         }
     }
+
+    private fun showAddExerciseDialog() {
+        val dialogView = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(50, 30, 50, 30)
+        }
+
+        val nameEditText = EditText(this).apply {
+            hint = "Nombre del ejercicio"
+        }
+        val descriptionEditText = EditText(this).apply {
+            hint = "Descripción del ejercicio"
+        }
+
+        dialogView.addView(nameEditText)
+        dialogView.addView(descriptionEditText)
+
+        AlertDialog.Builder(this)
+            .setTitle("Añadir nuevo ejercicio")
+            .setView(dialogView)
+            .setPositiveButton("Añadir") { _, _ ->
+                val name = nameEditText.text.toString().trim()
+                val description = descriptionEditText.text.toString().trim()
+                if (name.isNotEmpty()) {
+                    addNewExerciseToGlobalList(name, description)
+                } else {
+                    showSnackbar("El nombre del ejercicio no puede estar vacío")
+                }
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun addNewExerciseToGlobalList(name: String, description: String) {
+        val newExercise = GymExercise(name, description)
+        GymExercises.exercises.add(newExercise)
+        GymExercises.exercises.sortBy { it.name }
+
+        showSnackbar("Ejercicio '${newExercise.name}' añadido a la lista global")
+
+        // Opcional: Añadir el nuevo ejercicio al día actual si estamos en la vista de un día
+        currentDay?.let { day ->
+            addExerciseFromList(name, day)
+            updateUIForDay(day)
+        }
+    }
+
+
+    private fun addExerciseFromList(exerciseName: String, day: String) {
+        val exercise = GymExercises.exercises.find { it.name == exerciseName }
+        if (exercise != null) {
+            val exercisesForDay = exercises.getOrPut(day) { mutableListOf() }
+            if (!exercisesForDay.any { it.name == exercise.name }) {
+                exercisesForDay.add(Exercise(exercise.name, exercise.description, List(5) { 0 }))
+                exercisesForDay.sortBy { it.name }  // Mantener orden alfabético
+                saveExercises()
+                updateUIForDay(day)
+            } else {
+                showSnackbar("El ejercicio ya existe en este día")
+            }
+        } else {
+            showSnackbar("Ejercicio no encontrado en la lista global")
+        }
+    }
+
+    private fun saveExercises() {
+        val sharedPref = getSharedPreferences("Exercises", Context.MODE_PRIVATE)
+        with(sharedPref.edit()) {
+            exercises.forEach { (day, exerciseList) ->
+                putString(day, exerciseList.joinToString(";") {
+                    "${it.name}|${it.description}|${it.weights.joinToString(",")}"
+                })
+            }
+            apply()
+        }
+    }
+
+    private fun loadExercises() {
+        val sharedPref = getSharedPreferences("Exercises", Context.MODE_PRIVATE)
+        DAYS.forEach { day ->
+            val exercisesString = sharedPref.getString(day, "")
+            exercises[day] = exercisesString?.split(";")?.mapNotNull {
+                try {
+                    val parts = it.split("|")
+                    val name = parts[0]
+                    val description = parts[1]
+                    val weights = parts[2].split(",").map { it.toIntOrNull() ?: 0 }
+                    Exercise(name, description, weights)
+                } catch (e: Exception) {
+                    Log.e("MainActivity", "Error parsing exercise for $day: $it", e)
+                    null
+                }
+            }?.toMutableList() ?: mutableListOf()
+        }
+    }
+
+    private fun updateUIForDay(day: String) {
+        // Actualiza la UI para mostrar los ejercicios del día seleccionado
+        // Por ejemplo, podrías llamar a showDayExercises(day) aquí
+    }
+
+    //Muestra un diálogo de confirmación para borrar todos los ejercicios de un día específico.
+    //Si se confirma, borra los ejercicios y actualiza la interfaz de usuario.
 
     private fun deleteExercisesForDay(day: String) {
         AlertDialog.Builder(this)
@@ -201,45 +315,20 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
-    private fun saveExercises() {
-        val sharedPref = getSharedPreferences("Exercises", Context.MODE_PRIVATE)
-        with(sharedPref.edit()) {
-            exercises.forEach { (day, exerciseList) ->
-                putString(day, exerciseList.joinToString(";") { "${it.name},${it.weights.joinToString(",")}" })
-            }
-            apply()
-        }
-        Log.d("MainActivity", "Exercises saved")
-    }
 
-    private fun loadExercises() {
-        val sharedPref = getSharedPreferences("Exercises", Context.MODE_PRIVATE)
-        DAYS.forEach { day ->
-            val exercisesString = sharedPref.getString(day, "")
-            exercises[day] = exercisesString?.split(";")?.mapNotNull {
-                try {
-                    val parts = it.split(",")
-                    val name = parts[0]
-                    val weights = parts.subList(1, parts.size).map { it.toIntOrNull() ?: 0 }
-                    Exercise(name, weights)
-                } catch (e: Exception) {
-                    Log.e("MainActivity", "Error parsing exercise for $day: $it", e)
-                    null
-                }
-            }?.toMutableList() ?: mutableListOf()
-        }
-        Log.d("MainActivity", "Exercises loaded")
-    }
-
+    //Envía los resultados por Bluetooth o Gmail.
+    //Muestra un Snackbar indicando que los resultados se han enviado.
+    //(por implementar)
     private fun sendResults() {
         // Aquí implementarías la lógica para enviar los resultados por Bluetooth o Gmail
         showSnackbar("Resultados enviados")
     }
 
+    //Muestra un mensaje breve en la parte inferior de la pantalla.
     private fun showSnackbar(message: String) {
         Snackbar.make(findViewById(android.R.id.content), message, Snackbar.LENGTH_SHORT).show()
     }
-
+    //Muestra un diálogo de confirmación para salir de la aplicación.
     private fun showExitConfirmationDialog() {
         AlertDialog.Builder(this)
             .setTitle("Confirmar salida")
@@ -251,11 +340,14 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
-    data class Exercise(val name: String, var weights: List<Int>)
+    data class Exercise(val name: String, val description: String, var weights: List<Int>)
 
-    inner class ExerciseAdapter(private val exercises: MutableList<Exercise>) : RecyclerView.Adapter<ExerciseAdapter.ViewHolder>() {
+    inner class ExerciseAdapter(private val exercises: List<Exercise>) :
+        RecyclerView.Adapter<ExerciseAdapter.ViewHolder>() {
+
         inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             val nameTextView: TextView = view.findViewById(R.id.exerciseName)
+            val descriptionTextView: TextView = view.findViewById(R.id.exerciseDescription)
             val weightInputs: List<EditText> = listOf(
                 view.findViewById(R.id.weightInput1),
                 view.findViewById(R.id.weightInput2),
@@ -264,15 +356,17 @@ class MainActivity : AppCompatActivity() {
                 view.findViewById(R.id.weightInput5)
             )
         }
-
+        //Crea una vista para cada ejercicio.
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-            val view = LayoutInflater.from(parent.context).inflate(R.layout.item_exercise, parent, false)
+            val view = LayoutInflater.from(parent.context)
+                .inflate(R.layout.item_exercise, parent, false)
             return ViewHolder(view)
         }
-
+        //Muestra el nombre del ejercicio y los campos de peso para cada día.
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val exercise = exercises[position]
             holder.nameTextView.text = exercise.name
+            holder.descriptionTextView.text = exercise.description
 
             holder.weightInputs.forEachIndexed { index, editText ->
                 editText.setText(exercise.weights.getOrNull(index)?.toString() ?: "")
@@ -294,6 +388,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        //Devuelve el número total de ejercicios en la lista.
         override fun getItemCount() = exercises.size
     }
 }

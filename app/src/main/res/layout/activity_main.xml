@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -8,8 +7,8 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/addExerciseButton">
+        app:layout_constraintBottom_toTopOf="@id/addExerciseButton"
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:id="@+id/daysLayout"
@@ -18,87 +17,106 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <Button
+             <Button
                 android:id="@+id/lunesButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/lunes"
-                android:layout_marginBottom="8dp"/>
+                android:layout_marginBottom="8dp"
+                android:text="@string/lunes" />
 
             <Button
                 android:id="@+id/martesButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/martes"
-                android:layout_marginBottom="8dp"/>
+                android:layout_marginBottom="8dp"
+                android:text="@string/martes" />
 
             <Button
                 android:id="@+id/miércolesButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/mi_rcoles"
-                android:layout_marginBottom="8dp"/>
+                android:layout_marginBottom="8dp"
+                android:text="@string/mi_rcoles" />
 
             <Button
                 android:id="@+id/juevesButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/jueves"
-                android:layout_marginBottom="8dp"/>
+                android:layout_marginBottom="8dp"
+                android:text="@string/jueves" />
 
             <Button
                 android:id="@+id/viernesButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/viernes"
-                android:layout_marginBottom="8dp"/>
+                android:layout_marginBottom="8dp"
+                android:text="@string/viernes" />
 
             <Button
                 android:id="@+id/sabadoButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/s_bado"
-                android:layout_marginBottom="8dp"/>
+                android:layout_marginBottom="8dp"
+                android:text="@string/s_bado" />
 
             <Button
                 android:id="@+id/domingoButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/domingo"
-                android:layout_marginBottom="8dp"/>
+                android:layout_marginBottom="8dp"
+                android:text="@string/domingo" />
 
         </LinearLayout>
     </ScrollView>
-
     <Button
         android:id="@+id/addExerciseButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="@string/a_adir_Rutina"
+        app:layout_constraintBottom_toTopOf="@+id/deletExericiseButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+    <Button
+        android:id="@+id/addNewExerciseButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
         android:text="@string/a_adir_ejercicio"
         app:layout_constraintBottom_toTopOf="@id/showExercisesButton"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="16dp"/>
+        app:layout_constraintStart_toStartOf="parent" />
+    <Button
+        android:id="@+id/deletExericiseButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="@string/eliminar_ejercicio"
+        app:layout_constraintBottom_toTopOf="@+id/addNewExerciseButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+
 
     <Button
         android:id="@+id/showExercisesButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="8dp"
         android:text="@string/mostrar_lista_de_ejercicios"
         app:layout_constraintBottom_toTopOf="@id/exitButton"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginBottom="8dp"/>
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/exitButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_margin="16dp"
         android:text="@string/salir"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="16dp"/>
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
