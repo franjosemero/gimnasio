@@ -3,7 +3,7 @@ package com.example.gimnasio
 data class GymExercise(val name: String, val description: String)
 
 object GymExercises {
-    val exercises = listOf(
+    var exercises = mutableListOf(
         GymExercise("**Press de banca**", "Acostado en un banco, bajar y subir una barra con pesas para trabajar el pecho."),
         GymExercise("**Sentadillas**", "Flexionar las rodillas y caderas como si fueras a sentarte, para fortalecer piernas y glúteos."),
         GymExercise("**Peso muerto**", "Levantar una barra desde el suelo hasta la cadera, trabajando espalda y piernas."),

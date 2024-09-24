@@ -42,6 +42,7 @@ class ExerciseListActivity : AppCompatActivity() {
             showDaySelectionDialog()
         }
     }
+
     private fun showDaySelectionDialog() {
         val days = arrayOf("Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo")
         AlertDialog.Builder(this)
