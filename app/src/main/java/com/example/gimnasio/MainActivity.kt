@@ -26,11 +26,14 @@ import androidx.activity.result.ActivityResultLauncher
 class MainActivity : AppCompatActivity() {
 
     private var exercises = mutableMapOf<String, MutableList<Exercise>>()
-    private lateinit var currentDay: String
     private lateinit var binding: ActivityMainBinding
     private lateinit var adapter: ExerciseAdapter
     private lateinit var exerciseListLauncher: ActivityResultLauncher<Intent>
+    private var currentDay: String? = null
 
+
+
+    
     companion object {
         val DAYS = listOf("Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo")
     }
@@ -51,6 +54,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.addNewExerciseButton).setOnClickListener {
             showAddExerciseDialog()
         }
+
 
         if (exercises.all { it.value.isEmpty() }) {
             Log.d("MainActivity", "Adding test exercise")
