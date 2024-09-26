@@ -49,15 +49,14 @@ class ExerciseListActivity : AppCompatActivity() {
             .setTitle("Selecciona el día para guardar los ejercicios")
             .setItems(days) { _, which ->
                 val selectedDay = days[which]
-                val intent = Intent()
-                intent.putExtra("selectedExercises", ArrayList(selectedExercises))
-                intent.putExtra("selectedDay", selectedDay)
+                val intent = Intent().apply {
+                    putExtra("selectedExercises", ArrayList(selectedExercises))
+                    putExtra("selectedDay", selectedDay)
+                }
                 setResult(Activity.RESULT_OK, intent)
                 finish()
             }
-            .setNegativeButton("Cancelar") { dialog, _ ->
-                dialog.dismiss()
-            }
+            .setNegativeButton("Cancelar") { dialog, _ -> dialog.dismiss() }
             .show()
     }
 
@@ -70,40 +69,50 @@ class ExerciseListActivity : AppCompatActivity() {
             val checkBox: CheckBox = view.findViewById(R.id.exerciseCheckBox)
             val nameTextView: TextView = view.findViewById(R.id.exerciseName)
             val descriptionTextView: TextView = view.findViewById(R.id.exerciseDescription)
+            // Nota: Si el botón de borrar no existe en tu layout, mantén esta línea comentada
+            // val deleteButton: Button = view.findViewById(R.id.deletExericiseButton)
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-            val view = LayoutInflater.from(parent.context).inflate(R.layout.item_exercise_list, parent, false)
+            val view = LayoutInflater.from(parent.context)
+                .inflate(R.layout.item_exercise_list, parent, false)
             return ViewHolder(view)
         }
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val exercise = exercises[position]
 
-            holder.checkBox.isChecked = selectedExercises.contains(exercise.name)
-            holder.nameTextView.text = applyBoldStyle(exercise.name)
-            holder.descriptionTextView.text = exercise.description
+            with(holder) {
+                checkBox.isChecked = selectedExercises.contains(exercise.name)
+                nameTextView.text = applyBoldStyle(exercise.name)
+                descriptionTextView.text = exercise.description
 
-            holder.checkBox.setOnCheckedChangeListener { _, isChecked ->
-                onItemChecked(exercise, isChecked)
-            }
+                // Nota: Si el botón de borrar no existe, mantén este bloque comentado
+                /*
+                deleteButton.setOnClickListener {
+                    // Implementar funcionalidad de borrado aquí si es necesario
+                }
+                */
 
-            holder.itemView.setOnClickListener {
-                holder.checkBox.isChecked = !holder.checkBox.isChecked
+                checkBox.setOnCheckedChangeListener { _, isChecked ->
+                    onItemChecked(exercise, isChecked)
+                }
+
+                itemView.setOnClickListener {
+                    checkBox.isChecked = !checkBox.isChecked
+                }
             }
         }
 
         override fun getItemCount() = exercises.size
 
         private fun applyBoldStyle(text: String): SpannableString {
-            val spannableString = SpannableString(text)
-            spannableString.setSpan(
-                StyleSpan(Typeface.BOLD),
-                0,
-                text.length,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
-            return spannableString
+            return SpannableString(text).apply {
+                setSpan(StyleSpan(Typeface.BOLD), 0, text.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
         }
     }
 }
+
+
+

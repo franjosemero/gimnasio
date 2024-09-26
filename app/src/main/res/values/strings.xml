@@ -12,7 +12,6 @@
     <string name="domingo">Domingo</string>
     <string name="a_adir_ejercicio">Añadir Nuevo ejercicio</string>
     <string name="eliminar_ejercicio">Eliminar ejercicio</string>
-    <string name="a_adir_Rutina">Añadir Rutina</string>
 
     <string name="volver">Volver</string>
     <string name="peso_kg">Peso (kg)</string>
@@ -33,4 +32,5 @@
     <string name="salir">Salir</string>
     <string name="borrar">Borrar</string>
     <string name="selecciona_un_ejercicio">Selecciona un ejercicio:</string>
+    <string name="a_adir_rutina"> Rutina</string>
 </resources>
