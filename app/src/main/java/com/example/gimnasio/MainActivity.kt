@@ -23,6 +23,10 @@ import java.util.Locale
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.ActivityResultLauncher
 
+//este funcionando
+
+
+
 class MainActivity : AppCompatActivity() {
 
     private var exercises = mutableMapOf<String, MutableList<Exercise>>()

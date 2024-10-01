@@ -18,6 +18,9 @@ import android.text.Spanned
 import android.text.style.StyleSpan
 import androidx.appcompat.app.AlertDialog
 
+
+// este funcionando
+
 class ExerciseListActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: ExerciseAdapter
